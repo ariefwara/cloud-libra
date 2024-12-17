@@ -1,19 +1,12 @@
-Here is the final version of the **README.md** incorporating the conceptual note and details about the demo app:
-
----
-
 # **Cloud-Libra API Project**
 
 Cloud-Libra is a conceptual library management API built with **Spring Boot**. It showcases design, architecture, and development skills while being containerized for deployment across various platforms, including **Docker**, **Kubernetes**, **AWS ECS Fargate**, and **GCP Cloud Run**.
 
----
 
 ## **Live Demo**
 
 You can check the **demo application** hosted on my home server (running via **Docker** and exposed via **Cloudflared**):  
 [https://cloud-libra.ariefwara.my.id](https://cloud-libra.ariefwara.my.id)
-
----
 
 ## **Project Scope**
 

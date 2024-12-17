@@ -1,6 +1,6 @@
 package id.my.ariefwara.cloud.libra.controller;
 
-import id.my.ariefwara.cloud.libra.model.Borrower;
+import id.my.ariefwara.cloud.libra.dto.BorrowerDTO;
 import id.my.ariefwara.cloud.libra.service.BorrowerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ public class BorrowerController {
     }
 
     @PostMapping
-    public ResponseEntity<Borrower> registerBorrower(@RequestBody Borrower borrower) {
-        return ResponseEntity.ok(borrowerService.registerBorrower(borrower));
+    public ResponseEntity<BorrowerDTO> registerBorrower(@RequestBody BorrowerDTO borrowerDTO) {
+        return ResponseEntity.ok(borrowerService.registerBorrower(borrowerDTO));
     }
 }

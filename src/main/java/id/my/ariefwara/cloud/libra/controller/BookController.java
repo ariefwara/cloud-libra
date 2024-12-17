@@ -1,6 +1,6 @@
 package id.my.ariefwara.cloud.libra.controller;
 
-import id.my.ariefwara.cloud.libra.model.Book;
+import id.my.ariefwara.cloud.libra.dto.BookDTO;
 import id.my.ariefwara.cloud.libra.service.BookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,22 +18,22 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<Book> registerBook(@RequestBody Book book) {
-        return ResponseEntity.ok(bookService.registerBook(book));
+    public ResponseEntity<BookDTO> registerBook(@RequestBody BookDTO bookDTO) {
+        return ResponseEntity.ok(bookService.registerBook(bookDTO));
     }
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
+    public ResponseEntity<List<BookDTO>> getAllBooks() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
     @PutMapping("/{bookId}/borrow/{borrowerId}")
-    public ResponseEntity<Book> borrowBook(@PathVariable Long bookId, @PathVariable Long borrowerId) {
+    public ResponseEntity<BookDTO> borrowBook(@PathVariable Long bookId, @PathVariable Long borrowerId) {
         return ResponseEntity.ok(bookService.borrowBook(bookId, borrowerId));
     }
 
     @PutMapping("/{bookId}/return")
-    public ResponseEntity<Book> returnBook(@PathVariable Long bookId) {
+    public ResponseEntity<BookDTO> returnBook(@PathVariable Long bookId) {
         return ResponseEntity.ok(bookService.returnBook(bookId));
     }
 }

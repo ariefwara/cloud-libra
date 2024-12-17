@@ -1,6 +1,17 @@
+Here is the final version of the **README.md** incorporating the conceptual note and details about the demo app:
+
+---
+
 # **Cloud-Libra API Project**
 
-Cloud-Libra is a library management API project built with **Spring Boot**. The application is containerized using **Docker** and is designed to be deployable on multiple platforms, such as **Docker**, **Kubernetes**, **AWS ECS Fargate**, and **GCP Cloud Run**. This project demonstrates skills in architecting, designing, and developing scalable systems.
+Cloud-Libra is a conceptual library management API built with **Spring Boot**. It showcases design, architecture, and development skills while being containerized for deployment across various platforms, including **Docker**, **Kubernetes**, **AWS ECS Fargate**, and **GCP Cloud Run**.
+
+---
+
+## **Live Demo**
+
+You can check the **demo application** hosted on my home server (running via **Docker** and exposed via **Cloudflared**):  
+[https://cloud-libra.ariefwara.my.id](https://cloud-libra.ariefwara.my.id)
 
 ---
 
@@ -15,18 +26,9 @@ Cloud-Libra is a library management API project built with **Spring Boot**. The 
 | **patron**    | Represents library members/patrons.    | `patron_id`, `name`, `email`       |
 | **borrow**    | Tracks book borrowing transactions.    | `borrow_id`, `copy_id`, `patron_id`, `borrow_date`, `due_date` |
 
----
-
-## **Live Demo**
-
-Before setting up, you can check the running instance of the application:  
-[https://cloud-libra.ariefwara.my.id](https://cloud-libra.ariefwara.my.id)
-
----
-
 ## **Run the Application**
 
-To quickly run the application, use the prebuilt Docker image hosted on Docker Hub:
+This project is **conceptual** and has not been tested in production environments. For quick execution and testing locally, use the prebuilt Docker image:
 
 ```bash
 docker run -p 8080:8080 \
@@ -36,8 +38,6 @@ docker run -p 8080:8080 \
   ariefwara/cloud-libra
 ```
 
----
-
 ### **Environment Variables**
 
 | Variable                      | Description                    | Example                        |
@@ -46,15 +46,11 @@ docker run -p 8080:8080 \
 | `SPRING_DATASOURCE_USERNAME`  | Database username              | `postgres`                     |
 | `SPRING_DATASOURCE_PASSWORD`  | Database password              | `password123`                  |
 
----
-
 ## **Database Setup**
 
-1. Ensure **PostgreSQL** is running.
-2. Execute the `ddl.sql` file to set up the database schema.
-
----
+1. Ensure **PostgreSQL** is running locally or remotely.
+2. Execute the provided `ddl.sql` file to set up the required database schema.
 
 ## **CI/CD and Deployment**
 
-The project uses **GitHub Actions** for CI/CD automation, including building, testing, and deploying the application.
+The project is integrated with **GitHub Actions** for CI/CD automation, including build, test, and deployment pipelines.

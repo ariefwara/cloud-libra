@@ -1,7 +1,3 @@
-Here's the updated **README** with the requirement checklist included:
-
----
-
 # **Cloud-Libra API Project**
 
 Cloud-Libra is a conceptual library management API built with **Spring Boot**.

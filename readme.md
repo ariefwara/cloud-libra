@@ -1,21 +1,219 @@
+Here's the updated **README** with the requirement checklist included:
+
+---
+
 # **Cloud-Libra API Project**
 
 Cloud-Libra is a conceptual library management API built with **Spring Boot**.
 
 ## **Live Demo**
 
-You can check the **demo application** hosted on my home server:  
-[https://cloud-libra.ariefwara.my.id](https://cloud-libra.ariefwara.my.id)
+Explore the API and interact using **Swagger UI**:  
+👉 [https://cloud-libra.ariefwara.my.id/swagger-ui/index.html#/](https://cloud-libra.ariefwara.my.id/swagger-ui/index.html#/)
 
-| **Category**                     | **Assumption/Choice**                                     | **Rationale**                                                                                     |
-|----------------------------------|----------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| **Clean Code Standard**          | Use **Uncle Bob's Clean Code** principles                | The requirement emphasizes "demonstrating clean code," and Uncle Bob's principles ensure maintainability, readability, and clarity. |
-| **Multi-Environment Setup**      | Multi-environment means **multi-test stages**            | The requirement asks for "configurable to run in multiple environments," focusing on test stages (e.g., dev, test, staging, prod). |
-| **Image Promotion**              | Use a **single Docker image** for promotion              | Aligns with containerization best practices and avoids rebuilding images, ensuring consistent deployment across environments. |
-| **Database Choice**              | Use **PostgreSQL** instead of MySQL or document-based DB | The requirement specifies an RDBMS, and PostgreSQL is highly scalable, reliable, and adheres to ACID compliance for relational data. |
-| **Dependency Management**        | Use **Maven** instead of Gradle                          | Maven aligns with Java and Spring Boot projects, meeting the requirement to "use a package manager" for dependency management. |
-| **API Documentation**            | Use **Swagger** for API documentation                    | The requirement states "clear documentation for API usage," and Swagger provides standardized, interactive API documentation. |
-| **Local Testing**                | Use **Docker** for local testing                         | The requirement mentions containerization; Docker ensures consistent local environments for development and testing. |
-| **Environment Management**       | Use **Kubernetes** for test, staging, and production     | The requirement asks for "demonstrating containerization and CI/CD tools"; Kubernetes is the de facto platform for orchestration. |
-| **Local Multi-Service Setup**    | Use **Docker Compose** to run on Docker                  | Simplifies multi-service execution (API, PostgreSQL) locally for testing, meeting "use a database" and modular setup requirements. |
-| **K8s Deployment**               | Use **Helm Charts** to deploy on Kubernetes              | Meets the need for "declarative deployment" as Helm charts enable versioned, reusable configurations for Kubernetes environments. |
+---
+
+## **Tech Stack**
+
+- **Java 17**: Modern, secure, and performant.  
+- **Spring Boot 3.4.0**: Rapid development of REST APIs.  
+- **PostgreSQL**: Reliable and ACID-compliant database.  
+- **SpringDoc OpenAPI**: Auto-generate API documentation with Swagger UI.  
+- **Maven**: Project dependency and build management.  
+- **JUnit 5 & Mockito**: Testing framework for unit tests.  
+- **JaCoCo**: Code coverage reporting (80% minimum threshold).  
+- **Docker**: Containerization for ease of deployment.
+
+---
+
+## **Features**
+
+1. **Register Borrowers**: Add new borrowers to the system.  
+2. **Manage Books**: Add books, retrieve all books, and manage borrowing or returning.  
+3. **Validation and Error Handling**: Ensures data integrity and provides clear error responses.  
+4. **API Documentation**:  
+   Swagger UI is auto-generated for testing and interacting with the API.  
+
+---
+
+## **API Overview**
+
+| **Method** | **Endpoint**                         | **Description**                        |
+|------------|--------------------------------------|----------------------------------------|
+| `POST`     | `/api/borrowers`                    | Register a new borrower.               |
+| `POST`     | `/api/books`                        | Register a new book.                   |
+| `GET`      | `/api/books`                        | Get a list of all books.               |
+| `PUT`      | `/api/books/{bookId}/borrow/{borrowerId}` | Borrow a book.                         |
+| `PUT`      | `/api/books/{bookId}/return`        | Return a borrowed book.                |
+
+---
+
+### **Detailed Explanation**
+
+1. **`POST /api/borrowers`**  
+   - **Purpose**: This endpoint is used to **register a new borrower** in the library system.  
+   - **Input**: A **JSON request body** containing borrower details such as `name` and `email`.  
+   - **Output**: Returns the registered borrower's information, including a unique `borrowerId`.  
+   - **Use Case**: Adds a new user (borrower) to the system who can borrow books.
+
+---
+
+2. **`POST /api/books`**  
+   - **Purpose**: This endpoint is used to **register a new book** in the library system.  
+   - **Input**: A **JSON request body** containing book details, such as `isbn`, `title`, and `author`.  
+   - **Output**: Returns the registered book's information, including a unique `bookId`.  
+   - **Validation**: Ensures no conflict occurs with an existing book's ISBN, title, and author.  
+   - **Use Case**: Adds a new book to the library catalog.
+
+---
+
+3. **`GET /api/books`**  
+   - **Purpose**: Retrieves a **list of all books** in the library.  
+   - **Input**: No input is required.  
+   - **Output**: Returns a list of books with their details, such as `bookId`, `isbn`, `title`, `author`, and borrower information (if applicable).  
+   - **Use Case**: Provides users or administrators with an overview of available books in the library.
+
+---
+
+4. **`PUT /api/books/{bookId}/borrow/{borrowerId}`**  
+   - **Purpose**: Allows a borrower to **borrow a book**.  
+   - **Input**:  
+      - `bookId`: Path parameter identifying the book to borrow.  
+      - `borrowerId`: Path parameter identifying the borrower who is borrowing the book.  
+   - **Output**: Returns the updated book details with the `borrowerId` set to the borrower who borrowed the book.  
+   - **Validation**: Ensures the book is not already borrowed by another borrower.  
+   - **Use Case**: Marks a book as borrowed by a specific borrower.
+
+---
+
+5. **`PUT /api/books/{bookId}/return`**  
+   - **Purpose**: Allows a borrower to **return a borrowed book**.  
+   - **Input**:  
+      - `bookId`: Path parameter identifying the book being returned.  
+   - **Output**: Returns the updated book details with `borrowerId` set to `null` to indicate it is available.  
+   - **Validation**: Ensures the book is currently marked as borrowed before allowing a return.  
+   - **Use Case**: Marks a book as returned and available for other borrowers.
+
+---
+
+## **Setup**
+Here’s the refined **Run Locally** section based on your requirement:  
+
+- **Maven**: Use this for **development**, code modification, or testing the application.  
+- **Docker Compose**: Use this to quickly run the **finished product** in a simple and consistent environment.  
+
+---
+
+### **Run Locally**
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/ariefwara/cloud-libra.git
+   cd cloud-libra
+   ```
+
+2. **Database Setup**  
+   - Install PostgreSQL on your host machine.  
+   - Create a database and apply the schema:
+     ```bash
+     psql -U <username> -d <database_name> -f src/main/resources/schema.sql
+     ```
+
+---
+
+#### **Option 1: For Development (Maven)**
+
+Use this option if you need to **develop**, **test**, or make code modifications:
+
+1. Ensure PostgreSQL is running locally.  
+
+2. Run the application using Maven:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+3. Access the application:  
+   - **API Base URL**: [http://localhost:8080](http://localhost:8080)  
+   - **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+---
+
+#### **Option 2: For Simple Environment (Docker Compose)**  
+
+Use this option to quickly run the **finished product** in a controlled environment:
+
+1. Navigate to the `deploy/local` folder:
+   ```bash
+   cd deploy/local
+   ```
+
+2. Run the application with Docker Compose:
+   ```bash
+   docker-compose up
+   ```
+
+3. Access the application:  
+   - **API Base URL**: [http://localhost:8080](http://localhost:8080)  
+   - **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+---
+
+## **Requirements Checklist**
+
+| **Requirement**                                                                                  | **Check** |
+|--------------------------------------------------------------------------------------------------|-----------|
+| **Core Functionalities**                                                                         |           |
+| 1. Register a new borrower to the library.                                                       | ✔         |
+| 2. Register a new book to the library.                                                           | ✔         |
+| 3. Get a list of all books in the library.                                                       | ✔         |
+| 4. Borrow a book with a particular `bookId`.                                                     | ✔         |
+| 5. Return a borrowed book.                                                                       | ✔         |
+|                                                                                                  |           |
+| **Data Models**                                                                                  |           |
+| - Borrower: Unique ID, name, and email address.                                                  | ✔         |
+| - Book: Unique ID, ISBN number, title, and author.                                               | ✔         |
+| - Two books with the same title and author but different ISBNs are considered different books.   | ✔         |
+| - Books with the same ISBN must have identical `title` and `author`.                             | ✔         |
+| - Allow multiple copies of books with the same ISBN.                                             | ✔         |
+|                                                                                                  |           |
+| **Technical Requirements**                                                                       |           |
+| 1. Use Java 17 and Spring Boot framework.                                                        | ✔         |
+| 2. Configurable to run in multiple environments (via Helm Variables).                            | ✔         |
+| 3. Use a package manager (Maven).                                                                | ✔         |
+| 4. Implement proper data validation (Hibernate Validator).                                       | ✔         |
+| 5. Implement error handling (Global Exception Handler).                                          | ✔         |
+| 6. Use PostgreSQL for storing borrower and book data.                                            | ✔         |
+| 7. REST API endpoints implemented for all actions.                                               | ✔         |
+| 8. Books with the same `ISBN` are registered as separate books with unique IDs.                  | ✔         |
+| 9. Ensure only one borrower can borrow a book at a time.                                         | ✔         |
+| 10. Provide clear documentation (Swagger UI + README).                                           | ✔         |
+| 11. Document assumptions for any unspecified requirements.                                       | ✔         |
+|                                                                                                  |           |
+| **Nice to Have**                                                                                 |           |
+| 1. Include unit tests and code coverage (JUnit 5 + JaCoCo with 80% threshold).                   | ✔         |
+| 2. Demonstrate clean code (Adherence to best practices).                                         | ✔         |
+| 3. Use containerization (Docker) and CI/CD tools (Github Actions).                               | ✔         |
+| 4. Demonstrate conformance to 12 Factor Application principles (config, portability, stateless). | ✔         |
+
+---
+
+## **Test and Code Coverage**
+
+- **Run Unit Tests**:  
+   ```bash
+   mvn test
+   ```
+
+- **Generate Code Coverage Report**:  
+   ```bash
+   mvn verify
+   ```  
+   The JaCoCo report will be available under `target/site/jacoco`.
+
+---
+
+## **Assumptions**
+
+1. Books with the **same ISBN** must have the same `title` and `author`.  
+2. Multiple copies of the same book (same ISBN) can exist but with different unique IDs.  
+3. A book can only be borrowed by **one borrower** at a time.

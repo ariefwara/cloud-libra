@@ -5,9 +5,9 @@ services:
     image: ariefwara/cloud-libra:latest  # Use the existing image
     container_name: cloud-libra
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/cloud_libra
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/cloud-libra
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_SERVER_PORT: 8080
     ports:
-      - "8080:8080"
+      - "8402:8080"

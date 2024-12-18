@@ -1,7 +1,6 @@
 package id.my.ariefwara.cloud.libra.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 public record BookDTO(
     Long bookId,

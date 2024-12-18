@@ -20,5 +20,5 @@ public record Book(
     String author,
 
     @Column(name = "borrower_id")
-    Long borrowerId   // Only store the foreign key value as a reference
+    Long borrowerId
 ) {}

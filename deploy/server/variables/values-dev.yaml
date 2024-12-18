@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  repository: ariefwara/cloud-libra
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+env:
+  - name: SPRING_DATASOURCE_URL
+    value: jdbc:postgresql://dev-db:5432/cloud-libra
+  - name: SPRING_DATASOURCE_USERNAME
+    value: postgres
+  - name: SPRING_DATASOURCE_PASSWORD
+    value: postgres
+  - name: SERVER_PORT
+    value: "8080"

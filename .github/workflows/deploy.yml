@@ -1,0 +1,41 @@
+name: Deployment
+
+on:
+  workflow_dispatch:   # Manual trigger
+    inputs:
+      environment:
+        description: "Target environment (dev, sit, uat)"
+        required: true
+        default: "dev"
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: custom-runner  # GitHub Actions runner with Helm pre-installed
+    environment: ${{ github.event.inputs.environment }}  # Select environment dynamically
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Select the correct KUBECONFIG secret based on the environment
+      - name: Set Kubernetes Context for ${{ github.event.inputs.environment }}
+        run: |
+          echo "${{ secrets['KUBECONFIG-' + github.event.inputs.environment] }}" > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
+
+      # Validate Kubernetes context
+      - name: Validate Kubernetes Context
+        run: |
+          kubectl cluster-info || { echo "Kubernetes context is invalid!"; exit 1; }
+
+      # Deploy using Helm
+      - name: Deploy Helm Chart to ${{ github.event.inputs.environment }}
+        run: |
+          helm upgrade --install cloud-libra-${{ github.event.inputs.environment }} \
+            ./deploy/server/ \
+            --namespace ${{ github.event.inputs.environment }} \
+            --set image.repository=ariefwara/cloud-libra \
+            --set image.tag=latest \
+            --values ./deploy/server/variables/values-${{ github.event.inputs.environment }}.yaml

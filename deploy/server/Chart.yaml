@@ -1,0 +1,13 @@
+apiVersion: v2
+name: cloud-libra
+description: A Helm chart for deploying the Cloud Libra Spring Boot application
+type: application
+
+# Chart version
+version: 1.0.0
+
+# Application version (Docker image version)
+appVersion: "latest"
+
+# Dependencies (if you add any, such as databases or ingress controllers)
+dependencies: []

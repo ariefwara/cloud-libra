@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Books", description = "API for managing books in the library")
@@ -47,13 +48,21 @@ public class BookController {
         @ApiResponse(responseCode = "400", description = "Invalid page or size parameter")
     })
     @GetMapping
-    public ResponseEntity<Page<Book>> getAllBooks(
+    public ResponseEntity<Page<BookDTO>> getAllBooks(
             @Parameter(description = "Page number (0-based)", example = "0") 
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Number of books per page", example = "10") 
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<Book> books = bookService.getAllBooks(page, size);
+        Page<BookDTO> books = bookService.getAllBooks(page, size);
+        return ResponseEntity.ok(books);
+    }
+
+    @Operation(summary = "Get all books", description = "Retrieves a list of all books in the library without pagination.")
+    @ApiResponse(responseCode = "200", description = "Books retrieved successfully")
+    @GetMapping("/all")
+    public ResponseEntity<List<BookDTO>> getAllBooks() {
+        List<BookDTO> books = bookService.getAllBooks();
         return ResponseEntity.ok(books);
     }
 

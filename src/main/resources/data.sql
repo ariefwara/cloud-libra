@@ -1,0 +1,68 @@
+-- Insert data into Borrower table
+INSERT INTO borrower (name, email) VALUES 
+    ('Alice Johnson', 'alice.johnson@example.com'),
+    ('Bob Smith', 'bob.smith@example.com'),
+    ('Charlie Brown', 'charlie.brown@example.com'),
+    ('Diana Prince', 'diana.prince@example.com'),
+    ('Ethan Hunt', 'ethan.hunt@example.com'),
+    ('Fiona Clarke', 'fiona.clarke@example.com'),
+    ('George Miller', 'george.miller@example.com'),
+    ('Hannah Lee', 'hannah.lee@example.com'),
+    ('Ian Wright', 'ian.wright@example.com'),
+    ('Jane Doe', 'jane.doe@example.com'),
+    ('Kevin Black', 'kevin.black@example.com'),
+    ('Laura Green', 'laura.green@example.com'),
+    ('Michael Scott', 'michael.scott@example.com'),
+    ('Nancy Adams', 'nancy.adams@example.com'),
+    ('Oliver King', 'oliver.king@example.com');
+
+-- Insert data into Book table
+INSERT INTO book (isbn, title, author, borrower_id) VALUES 
+    -- Borrowed Books
+    ('978-3-16-148410-0', 'Effective Java', 'Joshua Bloch', 
+        (SELECT borrower_id FROM borrower WHERE email = 'alice.johnson@example.com')),
+    ('978-0-13-468599-1', 'Clean Code', 'Robert C. Martin', 
+        (SELECT borrower_id FROM borrower WHERE email = 'bob.smith@example.com')),
+    ('978-1-59327-950-9', 'Eloquent JavaScript', 'Marijn Haverbeke', 
+        (SELECT borrower_id FROM borrower WHERE email = 'charlie.brown@example.com')),
+    ('978-0-596-52068-7', 'Learning Python', 'Mark Lutz', 
+        (SELECT borrower_id FROM borrower WHERE email = 'diana.prince@example.com')),
+    ('978-1-4493-2120-2', 'Fluent Python', 'Luciano Ramalho', 
+        (SELECT borrower_id FROM borrower WHERE email = 'ethan.hunt@example.com')),
+
+    -- Available Books (Not Borrowed)
+    ('978-0-201-63361-0', 'Design Patterns', 'Erich Gamma', NULL),
+    ('978-1-118-06331-3', 'Code Complete', 'Steve McConnell', NULL),
+    ('978-1-4919-1889-0', 'Python Crash Course', 'Eric Matthes', NULL),
+    ('978-1-4302-1991-8', 'Java Performance', 'Charlie Hunt', NULL),
+    ('978-0-321-35668-0', 'The Pragmatic Programmer', 'Andrew Hunt', NULL),
+    ('978-0-07-042807-2', 'Unix Network Programming', 'W. Richard Stevens', NULL),
+    ('978-1-4842-6331-4', 'Spring in Action', 'Craig Walls', NULL),
+    ('978-0-321-50362-3', 'Refactoring', 'Martin Fowler', NULL),
+    ('978-0-596-51774-8', 'Head First Java', 'Kathy Sierra', NULL),
+    ('978-1-4919-5601-8', 'Kubernetes Up & Running', 'Kelsey Hightower', NULL),
+    ('978-0-201-82462-0', 'Compilers: Principles, Techniques, and Tools', 'Aho, Ullman', NULL),
+    ('978-1-59327-424-5', 'Automate the Boring Stuff with Python', 'Al Sweigart', NULL),
+    ('978-1-4493-9258-5', 'You Don’t Know JS', 'Kyle Simpson', NULL),
+    ('978-0-596-00478-2', 'Learning Perl', 'Randal L. Schwartz', NULL),
+    ('978-0-321-92917-2', 'The Mythical Man-Month', 'Frederick P. Brooks', NULL),
+    ('978-1-4842-4074-4', 'Pro Spring Boot', 'Felipe Gutierrez', NULL),
+    ('978-0-596-51837-2', 'JavaScript: The Good Parts', 'Douglas Crockford', NULL),
+
+    -- Additional Borrowed Books
+    ('978-1-4493-8703-0', 'Deep Learning with Python', 'François Chollet', 
+        (SELECT borrower_id FROM borrower WHERE email = 'hannah.lee@example.com')),
+    ('978-0-321-35668-0', 'The Pragmatic Programmer', 'David Thomas', 
+        (SELECT borrower_id FROM borrower WHERE email = 'ian.wright@example.com')),
+    ('978-1-4919-4604-8', 'Introduction to Algorithms', 'Thomas H. Cormen', 
+        (SELECT borrower_id FROM borrower WHERE email = 'jane.doe@example.com')),
+    ('978-0-13-235088-4', 'Clean Architecture', 'Robert C. Martin', 
+        (SELECT borrower_id FROM borrower WHERE email = 'kevin.black@example.com')),
+    ('978-0-12-374856-0', 'Database System Concepts', 'Abraham Silberschatz', 
+        (SELECT borrower_id FROM borrower WHERE email = 'laura.green@example.com')),
+    ('978-1-4919-4011-2', 'Docker: Up & Running', 'Sean P. Kane', 
+        (SELECT borrower_id FROM borrower WHERE email = 'michael.scott@example.com')),
+    ('978-0-596-52770-9', 'RESTful Web APIs', 'Leonard Richardson', 
+        (SELECT borrower_id FROM borrower WHERE email = 'nancy.adams@example.com')),
+    ('978-1-4919-1889-0', 'Python Data Science Handbook', 'Jake VanderPlas', 
+        (SELECT borrower_id FROM borrower WHERE email = 'oliver.king@example.com'));

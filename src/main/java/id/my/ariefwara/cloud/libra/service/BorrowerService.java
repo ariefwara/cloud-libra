@@ -4,6 +4,7 @@ import id.my.ariefwara.cloud.libra.dto.BorrowerDTO;
 import id.my.ariefwara.cloud.libra.exception.DuplicateBorrowerException;
 import id.my.ariefwara.cloud.libra.model.Borrower;
 import id.my.ariefwara.cloud.libra.repository.BorrowerRepository;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,11 @@ public class BorrowerService {
     private static final Logger logger = LoggerFactory.getLogger(BorrowerService.class);
 
     private final BorrowerRepository borrowerRepository;
+    private final ModelMapper modelMapper;
 
-    public BorrowerService(BorrowerRepository borrowerRepository) {
+    public BorrowerService(BorrowerRepository borrowerRepository, ModelMapper modelMapper) {
         this.borrowerRepository = borrowerRepository;
+        this.modelMapper = modelMapper;
     }
 
     public BorrowerDTO registerBorrower(BorrowerDTO borrowerDTO) {
@@ -32,12 +35,15 @@ public class BorrowerService {
         }
 
         logger.debug("No existing borrower found with email: {}. Creating new borrower entry.", borrowerDTO.email());
-        Borrower borrower = new Borrower(null, borrowerDTO.name(), borrowerDTO.email());
+        Borrower borrower = modelMapper.map(borrowerDTO, Borrower.class);
+
+        logger.debug("Saving new borrower to the database.");
         Borrower savedBorrower = borrowerRepository.save(borrower);
 
-        logger.info("Successfully registered new borrower with ID: {} and email: {}", savedBorrower.getBorrowerId(), savedBorrower.getEmail());
-        logger.debug("Returning DTO for newly registered borrower with ID: {}", savedBorrower.getBorrowerId());
+        logger.info("Successfully registered new borrower with ID: {} and email: {}", 
+                    savedBorrower.getBorrowerId(), savedBorrower.getEmail());
 
-        return new BorrowerDTO(savedBorrower.getBorrowerId(), savedBorrower.getName(), savedBorrower.getEmail());
+        logger.debug("Mapping saved borrower entity to DTO.");
+        return modelMapper.map(savedBorrower, BorrowerDTO.class);
     }
 }

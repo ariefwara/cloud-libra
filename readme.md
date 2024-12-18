@@ -34,61 +34,75 @@ Explore the API and interact using **Swagger UI**:
 
 ## **API Overview**
 
-| **Method** | **Endpoint**                         | **Description**                        |
-|------------|--------------------------------------|----------------------------------------|
-| `POST`     | `/api/borrowers`                    | Register a new borrower.               |
-| `POST`     | `/api/books`                        | Register a new book.                   |
-| `GET`      | `/api/books`                        | Get a list of all books.               |
-| `PUT`      | `/api/books/{bookId}/borrow/{borrowerId}` | Borrow a book.                         |
-| `PUT`      | `/api/books/{bookId}/return`        | Return a borrowed book.                |
+| **Method** | **Endpoint**                         | **Description**                          |
+|------------|--------------------------------------|------------------------------------------|
+| `POST`     | `/api/borrowers`                    | Register a new borrower.                 |
+| `POST`     | `/api/books`                        | Register a new book.                     |
+| `GET`      | `/api/books`                        | Get a paginated list of books.           |
+| `GET`      | `/api/books/all`                    | Get a list of all books (no pagination). |
+| `PUT`      | `/api/books/{bookId}/borrow/{borrowerId}` | Borrow a book.                           |
+| `PUT`      | `/api/books/{bookId}/return`        | Return a borrowed book.                  |
 
 ---
 
-### **Detailed Explanation**
+## **Detailed Explanation**
 
-1. **`POST /api/borrowers`**  
-   - **Purpose**: This endpoint is used to **register a new borrower** in the library system.  
-   - **Input**: A **JSON request body** containing borrower details such as `name` and `email`.  
-   - **Output**: Returns the registered borrower's information, including a unique `borrowerId`.  
-   - **Use Case**: Adds a new user (borrower) to the system who can borrow books.
-
----
-
-2. **`POST /api/books`**  
-   - **Purpose**: This endpoint is used to **register a new book** in the library system.  
-   - **Input**: A **JSON request body** containing book details, such as `isbn`, `title`, and `author`.  
-   - **Output**: Returns the registered book's information, including a unique `bookId`.  
-   - **Validation**: Ensures no conflict occurs with an existing book's ISBN, title, and author.  
-   - **Use Case**: Adds a new book to the library catalog.
+### **1. `POST /api/borrowers`**
+- **Purpose**: Registers a new borrower in the library system.  
+- **Input**: A **JSON request body** containing borrower details: `name` and `email`.  
+- **Output**: Returns the registered borrower’s information, including a unique `borrowerId`.  
+- **Validation**: Ensures that `name` and `email` are valid and not empty.  
+- **Use Case**: Adds a new user (borrower) to the system who can borrow books.  
 
 ---
 
-3. **`GET /api/books`**  
-   - **Purpose**: Retrieves a **list of all books** in the library.  
-   - **Input**: No input is required.  
-   - **Output**: Returns a list of books with their details, such as `bookId`, `isbn`, `title`, `author`, and borrower information (if applicable).  
-   - **Use Case**: Provides users or administrators with an overview of available books in the library.
+### **2. `POST /api/books`**
+- **Purpose**: Registers a new book in the library system.  
+- **Input**: A **JSON request body** containing book details: `isbn`, `title`, and `author`.  
+- **Output**: Returns the registered book’s information, including a unique `bookId`.  
+- **Validation**: Ensures no conflicts occur with an existing book's ISBN, title, or author.  
+- **Use Case**: Adds a new book to the library catalog.  
 
 ---
 
-4. **`PUT /api/books/{bookId}/borrow/{borrowerId}`**  
-   - **Purpose**: Allows a borrower to **borrow a book**.  
-   - **Input**:  
-      - `bookId`: Path parameter identifying the book to borrow.  
-      - `borrowerId`: Path parameter identifying the borrower who is borrowing the book.  
-   - **Output**: Returns the updated book details with the `borrowerId` set to the borrower who borrowed the book.  
-   - **Validation**: Ensures the book is not already borrowed by another borrower.  
-   - **Use Case**: Marks a book as borrowed by a specific borrower.
+### **3. `GET /api/books`**
+- **Purpose**: Retrieves a **paginated list of books** in the library.  
+- **Input**: Query Parameters:  
+   - `page` (default = 0): Page number (zero-based).  
+   - `size` (default = 10): Number of books per page.  
+- **Output**: Returns a paginated list of books with their details:  
+  - `bookId`, `isbn`, `title`, `author`, and `borrowerId` (if applicable).  
+- **Use Case**: Provides users or administrators with an overview of books in the library, using pagination for scalability.  
 
 ---
 
-5. **`PUT /api/books/{bookId}/return`**  
-   - **Purpose**: Allows a borrower to **return a borrowed book**.  
-   - **Input**:  
-      - `bookId`: Path parameter identifying the book being returned.  
-   - **Output**: Returns the updated book details with `borrowerId` set to `null` to indicate it is available.  
-   - **Validation**: Ensures the book is currently marked as borrowed before allowing a return.  
-   - **Use Case**: Marks a book as returned and available for other borrowers.
+### **4. `GET /api/books/all`**
+- **Purpose**: Retrieves a **complete list of all books** without pagination.  
+- **Input**: No input required.  
+- **Output**: Returns a list of books with their details:  
+  - `bookId`, `isbn`, `title`, `author`, and `borrowerId` (if applicable).  
+- **Use Case**: Useful for scenarios where all books need to be retrieved at once (e.g., exporting data, admin dashboards).  
+
+---
+
+### **5. `PUT /api/books/{bookId}/borrow/{borrowerId}`**
+- **Purpose**: Allows a borrower to **borrow a specific book**.  
+- **Input**:  
+   - `bookId`: Path parameter identifying the book to borrow.  
+   - `borrowerId`: Path parameter identifying the borrower.  
+- **Output**: Returns the updated book details with the `borrowerId` set to the borrower.  
+- **Validation**: Ensures the book is not already borrowed.  
+- **Use Case**: Marks a book as borrowed by a specific borrower.
+
+---
+
+### **6. `PUT /api/books/{bookId}/return`**
+- **Purpose**: Allows a borrower to **return a borrowed book**.  
+- **Input**:  
+   - `bookId`: Path parameter identifying the book being returned.  
+- **Output**: Returns the updated book details with `borrowerId` set to `null`, indicating the book is now available.  
+- **Validation**: Ensures the book is currently marked as borrowed.  
+- **Use Case**: Marks a book as returned and available for other borrowers.  
 
 ---
 
@@ -190,21 +204,6 @@ Use this option to quickly run the **finished product** in a controlled environm
 | 2. Demonstrate clean code (Adherence to best practices).                                         | ✔         |
 | 3. Use containerization (Docker) and CI/CD tools (Github Actions).                               | ✔         |
 | 4. Demonstrate conformance to 12 Factor Application principles (config, portability, stateless). | ✔         |
-
----
-
-## **Test and Code Coverage**
-
-- **Run Unit Tests**:  
-   ```bash
-   mvn test
-   ```
-
-- **Generate Code Coverage Report**:  
-   ```bash
-   mvn verify
-   ```  
-   The JaCoCo report will be available under `target/site/jacoco`.
 
 ---
 

@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class BookServiceTest {
@@ -102,17 +104,6 @@ class BookServiceTest {
     }
 
     @Test
-    void registerBook_ConflictThrowsException() {
-        BookDTO bookDTO = new BookDTO(null, "1234567890", "Title", "Author");
-        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Different Title", "Different Author", null);
-
-        when(bookRepository.findFirstByIsbn(bookDTO.getIsbn())).thenReturn(Optional.of(existingBook));
-
-        assertThrows(BookConflictException.class, () -> bookService.registerBook(bookDTO));
-        verify(bookRepository, never()).save(any(Book.class));
-    }
-
-    @Test
     void getAllBooks_ReturnsBooksList() {
         List<Book> books = Arrays.asList(
                 new Book(UUID.randomUUID(), "1234567890", "Title1", "Author1", null),
@@ -183,4 +174,132 @@ class BookServiceTest {
         assertEquals(2, result.getContent().size());
         verify(bookRepository).findAll(PageRequest.of(0, 2));
     }
+
+    @Test
+    void registerBook_ExistingBookNoConflict() {
+        // Given
+        BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "Robert C. Martin");
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Robert C. Martin", null);
+
+        when(bookRepository.findFirstByIsbn(newBook.getIsbn())).thenReturn(Optional.of(existingBook));
+        when(modelMapper.map(existingBook, BookDTO.class)).thenReturn(newBook);
+
+        // When
+        BookDTO result = bookService.registerBook(newBook);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(existingBook.getIsbn(), result.getIsbn());
+        verify(bookRepository).findFirstByIsbn(newBook.getIsbn());
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void returnBook_BookNotFoundThrowsException() {
+        // Given
+        UUID bookId = UUID.randomUUID();
+
+        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(BookNotFoundException.class, () -> bookService.returnBook(bookId));
+
+        verify(bookRepository).findById(bookId);
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void registerBook_ConflictThrowsException() {
+        // Given
+        BookDTO newBook = new BookDTO(null, "1234567890", "Different Title", "Different Author");
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Robert C. Martin", null);
+
+        when(bookRepository.findFirstByIsbn(newBook.getIsbn())).thenReturn(Optional.of(existingBook));
+
+        // When & Then
+        assertThrows(BookConflictException.class, () -> bookService.registerBook(newBook));
+
+        verify(bookRepository).findFirstByIsbn(newBook.getIsbn());
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void registerBook_ConflictOnTitleOrAuthor_ThrowsException() {
+        // Given
+        BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "Robert C. Martin");
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Different Title", "Different Author", null);
+
+        when(bookRepository.findFirstByIsbn(newBook.getIsbn())).thenReturn(Optional.of(existingBook));
+
+        // When & Then
+        BookConflictException exception = assertThrows(BookConflictException.class, () -> bookService.registerBook(newBook));
+
+        String expectedMessage = "A book with ISBN '1234567890' already exists but has different details. " +
+                "Existing Book: Title = 'Different Title', Author = 'Different Author'. " +
+                "New Book: Title = 'Clean Code', Author = 'Robert C. Martin'.";
+
+        assertEquals(expectedMessage, exception.getMessage());
+
+        verify(bookRepository).findFirstByIsbn(newBook.getIsbn());
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void registerBook_TitleConflict_ThrowsException() {
+        // Given
+        BookDTO newBook = new BookDTO(null, "1234567890", "New Title", "Robert C. Martin"); // New title
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Existing Title", "Robert C. Martin", null); // Existing title is different
+
+        when(bookRepository.findFirstByIsbn(newBook.getIsbn())).thenReturn(Optional.of(existingBook));
+
+        // When & Then
+        BookConflictException exception = assertThrows(BookConflictException.class, () -> bookService.registerBook(newBook));
+
+        assertTrue(exception.getMessage().contains("Existing Title"));
+        assertTrue(exception.getMessage().contains("New Title"));
+        verify(bookRepository).findFirstByIsbn(newBook.getIsbn());
+        verify(bookRepository, never()).save(any());
+    }
+
+
+    @Test
+    void registerBook_AuthorConflict_ThrowsException() {
+        // Given
+        BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "New Author"); // New author
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Existing Author", null); // Existing author is different
+
+        when(bookRepository.findFirstByIsbn(newBook.getIsbn())).thenReturn(Optional.of(existingBook));
+
+        // When & Then
+        BookConflictException exception = assertThrows(BookConflictException.class, () -> bookService.registerBook(newBook));
+
+        assertTrue(exception.getMessage().contains("Existing Author"));
+        assertTrue(exception.getMessage().contains("New Author"));
+        verify(bookRepository).findFirstByIsbn(newBook.getIsbn());
+        verify(bookRepository, never()).save(any());
+    }
+
+
+    
+    @Test
+    void registerBook_NoConflict_ReturnsExistingBook() {
+        // Given
+        BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "Robert C. Martin");
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Robert C. Martin", null);
+
+        when(bookRepository.findFirstByIsbn(newBook.getIsbn())).thenReturn(Optional.of(existingBook));
+        when(modelMapper.map(existingBook, BookDTO.class)).thenReturn(newBook);
+
+        // When
+        BookDTO result = bookService.registerBook(newBook);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("1234567890", result.getIsbn());
+        assertEquals("Clean Code", result.getTitle());
+        verify(bookRepository).findFirstByIsbn(newBook.getIsbn());
+        verify(bookRepository, never()).save(any());
+    }
+
+
 }

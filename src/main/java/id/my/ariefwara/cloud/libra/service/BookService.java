@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,7 +69,7 @@ public class BookService {
         if (existingBook.isPresent()) {
             logger.debug("Book with ISBN: {} already exists. Checking for conflicts.", bookDTO.getIsbn());
             Book book = existingBook.get();
-            if (!book.getTitle().equals(bookDTO.getTitle()) || !book.getAuthor().equals(bookDTO.getAuthor())) {
+            if (!Objects.equals(book.getTitle(), bookDTO.getTitle()) || !Objects.equals(book.getAuthor(), bookDTO.getAuthor())) {
                 logger.warn("Conflict detected for ISBN: {}. Existing: [{} - {}], New: [{} - {}]",
                         bookDTO.getIsbn(), book.getTitle(), book.getAuthor(), bookDTO.getTitle(), bookDTO.getAuthor());
                 throw new BookConflictException(

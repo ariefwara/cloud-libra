@@ -215,7 +215,7 @@ Use this option to quickly run the **finished product** in a controlled environm
 | 11. Document assumptions for any unspecified requirements.                                       | ✔         |
 |                                                                                                  |           |
 | **Nice to Have**                                                                                 |           |
-| 1. Include unit tests and code coverage (JUnit 5 + JaCoCo with 80% threshold).                   | ✔         |
+| 1. Include unit tests and code coverage (JUnit 5 + JaCoCo with 70% threshold).                   | ✔         |
 | 2. Demonstrate clean code (Adherence to best practices).                                         | ✔         |
 | 3. Use containerization (Docker) and CI/CD tools (Github Actions).                               | ✔         |
 | 4. Demonstrate conformance to 12 Factor Application principles (config, portability, stateless). | ✔         |

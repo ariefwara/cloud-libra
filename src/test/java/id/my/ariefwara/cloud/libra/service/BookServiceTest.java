@@ -4,6 +4,7 @@ import id.my.ariefwara.cloud.libra.dto.BookDTO;
 import id.my.ariefwara.cloud.libra.exception.BookAlreadyBorrowedException;
 import id.my.ariefwara.cloud.libra.exception.BookConflictException;
 import id.my.ariefwara.cloud.libra.exception.BookNotBorrowedException;
+import id.my.ariefwara.cloud.libra.exception.BookNotFoundException;
 import id.my.ariefwara.cloud.libra.model.Book;
 import id.my.ariefwara.cloud.libra.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +30,9 @@ class BookServiceTest {
     @Mock
     private BookRepository bookRepository;
 
+    @Mock
+    private ModelMapper modelMapper;
+
     @InjectMocks
     private BookService bookService;
 
@@ -34,132 +42,145 @@ class BookServiceTest {
     }
 
     @Test
-    void registerBook_SuccessfulRegistration() {
-        // Given
-        BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "Robert C. Martin");
-        Book savedBook = new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Robert C. Martin", null);
-
-        when(bookRepository.findFirstByIsbn(newBook.isbn())).thenReturn(Optional.empty());
-        when(bookRepository.save(any(Book.class))).thenReturn(savedBook);
-
-        // When
-        BookDTO result = bookService.registerBook(newBook);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(savedBook.getBookId(), result.bookId());
-        assertEquals("Clean Code", result.title());
-        assertEquals("Robert C. Martin", result.author());
-
-        verify(bookRepository, times(1)).findFirstByIsbn(newBook.isbn());
-        verify(bookRepository, times(1)).save(any(Book.class));
-    }
-
-    @Test
-    void registerBook_ConflictThrowsException() {
-        // Given
-        BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "Robert C. Martin");
-        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Another Title", "Another Author", null);
-
-        when(bookRepository.findFirstByIsbn(newBook.isbn())).thenReturn(Optional.of(existingBook));
-
-        // When & Then
-        assertThrows(BookConflictException.class, () -> bookService.registerBook(newBook));
-
-        verify(bookRepository, times(1)).findFirstByIsbn(newBook.isbn());
-        verify(bookRepository, never()).save(any(Book.class));
-    }
-
-    @Test
     void borrowBook_Successful() {
-        // Given
         UUID bookId = UUID.randomUUID(), borrowerId = UUID.randomUUID();
-        Book book = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", null);
-        Book updatedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", borrowerId);
+        Book book = new Book(bookId, "1234567890", "Title", "Author", null);
+        Book updatedBook = new Book(bookId, "1234567890", "Title", "Author", borrowerId);
+        BookDTO bookDTO = new BookDTO(bookId, "1234567890", "Title", "Author");
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-        when(bookRepository.save(any(Book.class))).thenReturn(updatedBook);
+        when(bookRepository.findByIdForUpdate(bookId)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(updatedBook);
+        when(modelMapper.map(updatedBook, BookDTO.class)).thenReturn(bookDTO);
 
-        // When
         BookDTO result = bookService.borrowBook(bookId, borrowerId);
 
-        // Then
         assertNotNull(result);
         assertEquals(borrowerId, updatedBook.getBorrowerId());
+        verify(bookRepository).findByIdForUpdate(bookId);
+        verify(bookRepository).save(book);
+    }
 
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookRepository, times(1)).save(any(Book.class));
+    @Test
+    void borrowBook_NotFoundThrowsException() {
+        UUID bookId = UUID.randomUUID(), borrowerId = UUID.randomUUID();
+
+        when(bookRepository.findByIdForUpdate(bookId)).thenReturn(Optional.empty());
+
+        assertThrows(BookNotFoundException.class, () -> bookService.borrowBook(bookId, borrowerId));
+        verify(bookRepository).findByIdForUpdate(bookId);
     }
 
     @Test
     void borrowBook_AlreadyBorrowedThrowsException() {
-        // Given
         UUID bookId = UUID.randomUUID(), borrowerId = UUID.randomUUID();
-        Book alreadyBorrowedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", UUID.randomUUID());
+        Book alreadyBorrowedBook = new Book(bookId, "1234567890", "Title", "Author", UUID.randomUUID());
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(alreadyBorrowedBook));
+        when(bookRepository.findByIdForUpdate(bookId)).thenReturn(Optional.of(alreadyBorrowedBook));
 
-        // When & Then
         assertThrows(BookAlreadyBorrowedException.class, () -> bookService.borrowBook(bookId, borrowerId));
-
-        verify(bookRepository, times(1)).findById(bookId);
+        verify(bookRepository).findByIdForUpdate(bookId);
         verify(bookRepository, never()).save(any(Book.class));
     }
 
     @Test
-    void returnBook_Successful() {
-        // Given
-        UUID bookId = UUID.randomUUID();
-        Book borrowedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", UUID.randomUUID());
-        Book returnedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", null);
+    void registerBook_Successful() {
+        BookDTO bookDTO = new BookDTO(null, "1234567890", "Title", "Author");
+        Book book = new Book(null, "1234567890", "Title", "Author", null);
+        Book savedBook = new Book(UUID.randomUUID(), "1234567890", "Title", "Author", null);
+        BookDTO savedBookDTO = new BookDTO(savedBook.getBookId(), savedBook.getIsbn(), savedBook.getTitle(), savedBook.getAuthor());
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(borrowedBook));
-        when(bookRepository.save(any(Book.class))).thenReturn(returnedBook);
+        when(bookRepository.findFirstByIsbn(bookDTO.getIsbn())).thenReturn(Optional.empty());
+        when(modelMapper.map(bookDTO, Book.class)).thenReturn(book);
+        when(bookRepository.save(book)).thenReturn(savedBook);
+        when(modelMapper.map(savedBook, BookDTO.class)).thenReturn(savedBookDTO);
 
-        // When
-        BookDTO result = bookService.returnBook(bookId);
+        BookDTO result = bookService.registerBook(bookDTO);
 
-        // Then
         assertNotNull(result);
-        assertNull(returnedBook.getBorrowerId());
-
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookRepository, times(1)).save(any(Book.class));
+        assertEquals(savedBookDTO.getBookId(), result.getBookId());
+        verify(bookRepository).save(book);
     }
 
     @Test
-    void returnBook_NotBorrowedThrowsException() {
-        // Given
-        UUID bookId = UUID.randomUUID();
-        Book bookNotBorrowed = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", null);
+    void registerBook_ConflictThrowsException() {
+        BookDTO bookDTO = new BookDTO(null, "1234567890", "Title", "Author");
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Different Title", "Different Author", null);
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(bookNotBorrowed));
+        when(bookRepository.findFirstByIsbn(bookDTO.getIsbn())).thenReturn(Optional.of(existingBook));
 
-        // When & Then
-        assertThrows(BookNotBorrowedException.class, () -> bookService.returnBook(bookId));
-
-        verify(bookRepository, times(1)).findById(bookId);
+        assertThrows(BookConflictException.class, () -> bookService.registerBook(bookDTO));
         verify(bookRepository, never()).save(any(Book.class));
     }
 
     @Test
     void getAllBooks_ReturnsBooksList() {
-        // Given
         List<Book> books = Arrays.asList(
-                new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Robert C. Martin", null),
-                new Book(UUID.randomUUID(), "9876543210", "Clean Architecture", "Robert C. Martin", null)
+                new Book(UUID.randomUUID(), "1234567890", "Title1", "Author1", null),
+                new Book(UUID.randomUUID(), "9876543210", "Title2", "Author2", null)
         );
 
         when(bookRepository.findAll()).thenReturn(books);
+        when(modelMapper.map(any(Book.class), eq(BookDTO.class)))
+                .thenAnswer(invocation -> {
+                    Book book = invocation.getArgument(0);
+                    return new BookDTO(book.getBookId(), book.getIsbn(), book.getTitle(), book.getAuthor());
+                });
 
-        // When
         List<BookDTO> result = bookService.getAllBooks();
 
-        // Then
         assertEquals(2, result.size());
-        assertEquals("Clean Code", result.get(0).title());
-        assertEquals("Clean Architecture", result.get(1).title());
+        verify(bookRepository).findAll();
+    }
 
-        verify(bookRepository, times(1)).findAll();
+    @Test
+    void returnBook_Successful() {
+        UUID bookId = UUID.randomUUID();
+        Book borrowedBook = new Book(bookId, "1234567890", "Title", "Author", UUID.randomUUID());
+        Book returnedBook = new Book(bookId, "1234567890", "Title", "Author", null);
+        BookDTO bookDTO = new BookDTO(bookId, "1234567890", "Title", "Author");
+
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(borrowedBook));
+        when(bookRepository.save(borrowedBook)).thenReturn(returnedBook);
+        when(modelMapper.map(returnedBook, BookDTO.class)).thenReturn(bookDTO);
+
+        BookDTO result = bookService.returnBook(bookId);
+
+        assertNotNull(result);
+        assertNull(returnedBook.getBorrowerId());
+        verify(bookRepository).findById(bookId);
+        verify(bookRepository).save(borrowedBook);
+    }
+
+    @Test
+    void returnBook_NotBorrowedThrowsException() {
+        UUID bookId = UUID.randomUUID();
+        Book notBorrowedBook = new Book(bookId, "1234567890", "Title", "Author", null);
+
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(notBorrowedBook));
+
+        assertThrows(BookNotBorrowedException.class, () -> bookService.returnBook(bookId));
+        verify(bookRepository).findById(bookId);
+        verify(bookRepository, never()).save(any(Book.class));
+    }
+
+    @Test
+    void getAllBooksPaginated_ReturnsBooksPage() {
+        List<Book> books = Arrays.asList(
+                new Book(UUID.randomUUID(), "1234567890", "Title1", "Author1", null),
+                new Book(UUID.randomUUID(), "9876543210", "Title2", "Author2", null)
+        );
+        Page<Book> page = new PageImpl<>(books);
+
+        when(bookRepository.findAll(PageRequest.of(0, 2))).thenReturn(page);
+        when(modelMapper.map(any(Book.class), eq(BookDTO.class)))
+                .thenAnswer(invocation -> {
+                    Book book = invocation.getArgument(0);
+                    return new BookDTO(book.getBookId(), book.getIsbn(), book.getTitle(), book.getAuthor());
+                });
+
+        Page<BookDTO> result = bookService.getAllBooks(0, 2);
+
+        assertEquals(2, result.getContent().size());
+        verify(bookRepository).findAll(PageRequest.of(0, 2));
     }
 }

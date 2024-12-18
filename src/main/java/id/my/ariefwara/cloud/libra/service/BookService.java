@@ -60,22 +60,22 @@ public class BookService {
     }
 
     public BookDTO registerBook(BookDTO bookDTO) {
-        logger.info("Attempting to register book with ISBN: {}", bookDTO.isbn());
-        logger.debug("Checking for existing book with ISBN: {}", bookDTO.isbn());
+        logger.info("Attempting to register book with ISBN: {}", bookDTO.getIsbn());
+        logger.debug("Checking for existing book with ISBN: {}", bookDTO.getIsbn());
 
-        Optional<Book> existingBook = bookRepository.findFirstByIsbn(bookDTO.isbn());
+        Optional<Book> existingBook = bookRepository.findFirstByIsbn(bookDTO.getIsbn());
 
         if (existingBook.isPresent()) {
-            logger.debug("Book with ISBN: {} already exists. Checking for conflicts.", bookDTO.isbn());
+            logger.debug("Book with ISBN: {} already exists. Checking for conflicts.", bookDTO.getIsbn());
             Book book = existingBook.get();
-            if (!book.getTitle().equals(bookDTO.title()) || !book.getAuthor().equals(bookDTO.author())) {
+            if (!book.getTitle().equals(bookDTO.getTitle()) || !book.getAuthor().equals(bookDTO.getAuthor())) {
                 logger.warn("Conflict detected for ISBN: {}. Existing: [{} - {}], New: [{} - {}]",
-                        bookDTO.isbn(), book.getTitle(), book.getAuthor(), bookDTO.title(), bookDTO.author());
+                        bookDTO.getIsbn(), book.getTitle(), book.getAuthor(), bookDTO.getTitle(), bookDTO.getAuthor());
                 throw new BookConflictException(
-                        bookDTO.isbn(), book.getTitle(), book.getAuthor(), bookDTO.title(), bookDTO.author()
+                        bookDTO.getIsbn(), book.getTitle(), book.getAuthor(), bookDTO.getTitle(), bookDTO.getAuthor()
                 );
             }
-            logger.info("Book with ISBN: {} already exists. Returning existing book details.", bookDTO.isbn());
+            logger.info("Book with ISBN: {} already exists. Returning existing book details.", bookDTO.getIsbn());
             return modelMapper.map(book, BookDTO.class);
         }
 

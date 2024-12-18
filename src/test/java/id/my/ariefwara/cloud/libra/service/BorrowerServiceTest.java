@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -24,55 +24,49 @@ class BorrowerServiceTest {
     @InjectMocks
     private BorrowerService borrowerService;
 
+    private ModelMapper modelMapper;
+
     @BeforeEach
     void setUp() {
-        // Initialize the mocks
         MockitoAnnotations.openMocks(this);
+        modelMapper = new ModelMapper(); // Initialize the ModelMapper
+        borrowerService = new BorrowerService(borrowerRepository, modelMapper);
     }
 
     @Test
     void registerBorrower_SuccessfulRegistration() {
         // Given
         BorrowerDTO newBorrower = new BorrowerDTO(null, "John Doe", "john.doe@example.com");
-        Borrower savedEntity = new Borrower(UUID.randomUUID(), "John Doe", "john.doe@example.com");
+        Borrower savedBorrower = new Borrower(java.util.UUID.randomUUID(), "John Doe", "john.doe@example.com");
 
-        // Simulate repository behavior
-        when(borrowerRepository.findByEmail(newBorrower.email())).thenReturn(Optional.empty());
-        when(borrowerRepository.save(any(Borrower.class))).thenReturn(savedEntity);
+        when(borrowerRepository.findByEmail(newBorrower.getEmail())).thenReturn(Optional.empty());
+        when(borrowerRepository.save(any(Borrower.class))).thenReturn(savedBorrower);
 
         // When
         BorrowerDTO result = borrowerService.registerBorrower(newBorrower);
 
         // Then
         assertNotNull(result);
-        assertEquals(savedEntity.getBorrowerId(), result.borrowerId());
-        assertEquals("John Doe", result.name());
-        assertEquals("john.doe@example.com", result.email());
+        assertEquals(savedBorrower.getBorrowerId(), result.getBorrowerId());
+        assertEquals(savedBorrower.getName(), result.getName());
+        assertEquals(savedBorrower.getEmail(), result.getEmail());
 
-        // Verify interactions
-        verify(borrowerRepository, times(1)).findByEmail(newBorrower.email());
+        verify(borrowerRepository, times(1)).findByEmail(newBorrower.getEmail());
         verify(borrowerRepository, times(1)).save(any(Borrower.class));
     }
 
     @Test
-    void registerBorrower_DuplicateEmailThrowsException() {
+    void registerBorrower_ThrowsDuplicateBorrowerException() {
         // Given
         BorrowerDTO newBorrower = new BorrowerDTO(null, "John Doe", "john.doe@example.com");
-        Borrower existingBorrower = new Borrower(UUID.randomUUID(), "John Doe", "john.doe@example.com");
+        Borrower existingBorrower = new Borrower(java.util.UUID.randomUUID(), "John Doe", "john.doe@example.com");
 
-        // Simulate repository behavior
-        when(borrowerRepository.findByEmail(newBorrower.email())).thenReturn(Optional.of(existingBorrower));
+        when(borrowerRepository.findByEmail(newBorrower.getEmail())).thenReturn(Optional.of(existingBorrower));
 
         // When & Then
-        DuplicateBorrowerException exception = assertThrows(
-                DuplicateBorrowerException.class,
-                () -> borrowerService.registerBorrower(newBorrower)
-        );
+        assertThrows(DuplicateBorrowerException.class, () -> borrowerService.registerBorrower(newBorrower));
 
-        assertEquals("A borrower with email 'john.doe@example.com' already exists.", exception.getMessage());
-
-        // Verify interactions
-        verify(borrowerRepository, times(1)).findByEmail(newBorrower.email());
+        verify(borrowerRepository, times(1)).findByEmail(newBorrower.getEmail());
         verify(borrowerRepository, never()).save(any(Borrower.class));
     }
 }

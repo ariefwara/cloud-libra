@@ -24,17 +24,17 @@ public class BorrowerService {
     }
 
     public BorrowerDTO registerBorrower(BorrowerDTO borrowerDTO) {
-        logger.info("Attempting to register new borrower with email: {}", borrowerDTO.email());
-        logger.debug("Checking for existing borrower with email: {}", borrowerDTO.email());
+        logger.info("Attempting to register new borrower with email: {}", borrowerDTO.getEmail());
+        logger.debug("Checking for existing borrower with email: {}", borrowerDTO.getEmail());
 
-        Optional<Borrower> existingBorrower = borrowerRepository.findByEmail(borrowerDTO.email());
+        Optional<Borrower> existingBorrower = borrowerRepository.findByEmail(borrowerDTO.getEmail());
         if (existingBorrower.isPresent()) {
             logger.warn("Borrower with email '{}' already exists. Existing ID: {}", 
-                        borrowerDTO.email(), existingBorrower.get().getBorrowerId());
-            throw new DuplicateBorrowerException(borrowerDTO.email());
+                        borrowerDTO.getEmail(), existingBorrower.get().getBorrowerId());
+            throw new DuplicateBorrowerException(borrowerDTO.getEmail());
         }
 
-        logger.debug("No existing borrower found with email: {}. Creating new borrower entry.", borrowerDTO.email());
+        logger.debug("No existing borrower found with email: {}. Creating new borrower entry.", borrowerDTO.getEmail());
         Borrower borrower = modelMapper.map(borrowerDTO, Borrower.class);
 
         logger.debug("Saving new borrower to the database.");

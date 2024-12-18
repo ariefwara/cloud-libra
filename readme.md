@@ -168,6 +168,21 @@ Use this option to quickly run the **finished product** in a controlled environm
 
 ---
 
+## **Test and Code Coverage**
+
+- **Run Unit Tests**:  
+   ```bash
+   mvn test
+   ```
+
+- **Generate Code Coverage Report**:  
+   ```bash
+   mvn verify
+   ```  
+   The JaCoCo report will be available under `target/site/jacoco`.
+
+---
+
 ## **Requirements Checklist**
 
 | **Requirement**                                                                                  | **Check** |

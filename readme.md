@@ -230,6 +230,19 @@ You can access and test the Cloud Libra API using the following Postman Collecti
 
 ---
 
+### **Why PostgreSQL for This Project?**
+
+1. **Relational Fit**:  
+   - The library system's entities (Books, Borrowers) and their relationships (e.g., books borrowed by borrowers) are naturally modeled using foreign keys and joins, which PostgreSQL handles efficiently.
+
+2. **Data Integrity**:  
+   - PostgreSQL ensures strict **data consistency** with constraints like **UNIQUE** for borrower emails and **NOT NULL** for critical fields.  
+
+3. **Concurrency and Locking**:  
+   - PostgreSQL's **`SELECT FOR UPDATE`** with **MVCC** (Multi-Version Concurrency Control) ensures safe, row-level locking for operations like borrowing books, preventing race conditions without performance trade-offs.
+
+---
+
 ### Assumptions
 
 To simplify testing and demonstration, the following assumptions are made:

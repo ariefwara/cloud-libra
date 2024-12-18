@@ -153,8 +153,8 @@ Use this option to quickly run the **finished product** in a controlled environm
    ```
 
 3. Access the application:  
-   - **API Base URL**: [http://localhost:8080](http://localhost:8080)  
-   - **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+   - **API Base URL**: [http://localhost:8402](http://localhost:8402)  
+   - **Swagger UI**: [http://localhost:8402/swagger-ui.html](http://localhost:8402/swagger-ui.html)
 
 ---
 

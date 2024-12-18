@@ -222,8 +222,22 @@ Use this option to quickly run the **finished product** in a controlled environm
 
 ---
 
-## **Assumptions**
+## **Postman Collection**
 
-1. Books with the **same ISBN** must have the same `title` and `author`.  
-2. Multiple copies of the same book (same ISBN) can exist but with different unique IDs.  
-3. A book can only be borrowed by **one borrower** at a time.
+You can access and test the Cloud Libra API using the following Postman Collection:
+
+[Cloud Libra API Demo Collection](https://www.postman.com/blue-resonance-266201/cloud-libra/collection/pmlro5k/cloud-libra-api-demo?action=share&creator=1150180)
+
+---
+
+### Assumptions
+
+To simplify testing and demonstration, the following assumptions are made:
+- **Authentication and Authorization** are **not required**.
+- The API does **not reflect real-world scenarios** where:
+   - A **book** would be a copy (instance) of a book.
+   - The **book** itself is treated as an abstraction of the copies.
+- The library is **not scoped** for online or offline use; this is purely a demo API.
+- There is **no actual business case** or domain implementation behind the API.
+- Transactions (e.g., borrow date, due date, and return date) are **not recorded**.
+- **User experience (UX)** or front-end interactions to the API are **not included**.

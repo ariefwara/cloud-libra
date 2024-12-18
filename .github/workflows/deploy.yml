@@ -4,7 +4,7 @@ on:
   workflow_dispatch:   # Manual trigger
     inputs:
       environment:
-        description: "Target environment (dev, sit, uat)"
+        description: "Target environment (dev, sit, uat, prod)"
         required: true
         default: "dev"
 

@@ -1,9 +1,12 @@
 package id.my.ariefwara.cloud.libra.dto;
 
+import java.util.UUID;
+
 import jakarta.validation.constraints.NotBlank;
 
 public record BookDTO(
-    Long bookId,
+    
+    UUID bookId,
 
     @NotBlank(message = "ISBN is required")
     String isbn,

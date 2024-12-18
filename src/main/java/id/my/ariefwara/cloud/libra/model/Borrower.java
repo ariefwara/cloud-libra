@@ -1,13 +1,15 @@
 package id.my.ariefwara.cloud.libra.model;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 
 @Entity
 public class Borrower {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long borrowerId;
+    @GeneratedValue(strategy = GenerationType.AUTO) // Automatically generates UUID
+    @Column(name = "borrower_id", updatable = false, nullable = false, columnDefinition = "UUID")
+    private UUID borrowerId;
 
     @Column(nullable = false)
     private String name;
@@ -15,21 +17,20 @@ public class Borrower {
     @Column(nullable = false)
     private String email;
 
-    // Default constructor required by JPA
     public Borrower() {}
 
-    public Borrower(Long borrowerId, String name, String email) {
+    public Borrower(UUID borrowerId, String name, String email) {
         this.borrowerId = borrowerId;
         this.name = name;
         this.email = email;
     }
 
     // Getters and Setters
-    public Long getBorrowerId() {
+    public UUID getBorrowerId() {
         return borrowerId;
     }
 
-    public void setBorrowerId(Long borrowerId) {
+    public void setBorrowerId(UUID borrowerId) {
         this.borrowerId = borrowerId;
     }
 

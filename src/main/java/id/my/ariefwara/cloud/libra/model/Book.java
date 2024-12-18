@@ -1,15 +1,16 @@
 package id.my.ariefwara.cloud.libra.model;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "book")
 public class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "book_id")
-    private Long bookId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "book_id", updatable = false, nullable = false, columnDefinition = "UUID")
+    private UUID bookId;
 
     @Column(name = "isbn")
     private String isbn;
@@ -21,11 +22,11 @@ public class Book {
     private String author;
 
     @Column(name = "borrower_id")
-    private Long borrowerId;
+    private UUID borrowerId;
 
     public Book() {}
 
-    public Book(Long bookId, String isbn, String title, String author, Long borrowerId) {
+    public Book(UUID bookId, String isbn, String title, String author, UUID borrowerId) {
         this.bookId = bookId;
         this.isbn = isbn;
         this.title = title;
@@ -34,11 +35,11 @@ public class Book {
     }
 
     // Getters and Setters
-    public Long getBookId() {
+    public UUID getBookId() {
         return bookId;
     }
 
-    public void setBookId(Long bookId) {
+    public void setBookId(UUID bookId) {
         this.bookId = bookId;
     }
 
@@ -66,11 +67,12 @@ public class Book {
         this.author = author;
     }
 
-    public Long getBorrowerId() {
+    public UUID getBorrowerId() {
         return borrowerId;
     }
 
-    public void setBorrowerId(Long borrowerId) {
+    public void setBorrowerId(UUID borrowerId) {
         this.borrowerId = borrowerId;
     }
+    
 }

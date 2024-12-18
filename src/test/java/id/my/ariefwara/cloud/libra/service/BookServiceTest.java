@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -36,7 +37,7 @@ class BookServiceTest {
     void registerBook_SuccessfulRegistration() {
         // Given
         BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "Robert C. Martin");
-        Book savedBook = new Book(1L, "1234567890", "Clean Code", "Robert C. Martin", null);
+        Book savedBook = new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Robert C. Martin", null);
 
         when(bookRepository.findFirstByIsbn(newBook.isbn())).thenReturn(Optional.empty());
         when(bookRepository.save(any(Book.class))).thenReturn(savedBook);
@@ -46,7 +47,7 @@ class BookServiceTest {
 
         // Then
         assertNotNull(result);
-        assertEquals(1L, result.bookId());
+        assertEquals(savedBook.getBookId(), result.bookId());
         assertEquals("Clean Code", result.title());
         assertEquals("Robert C. Martin", result.author());
 
@@ -58,7 +59,7 @@ class BookServiceTest {
     void registerBook_ConflictThrowsException() {
         // Given
         BookDTO newBook = new BookDTO(null, "1234567890", "Clean Code", "Robert C. Martin");
-        Book existingBook = new Book(1L, "1234567890", "Another Title", "Another Author", null);
+        Book existingBook = new Book(UUID.randomUUID(), "1234567890", "Another Title", "Another Author", null);
 
         when(bookRepository.findFirstByIsbn(newBook.isbn())).thenReturn(Optional.of(existingBook));
 
@@ -72,7 +73,7 @@ class BookServiceTest {
     @Test
     void borrowBook_Successful() {
         // Given
-        Long bookId = 1L, borrowerId = 100L;
+        UUID bookId = UUID.randomUUID(), borrowerId = UUID.randomUUID();
         Book book = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", null);
         Book updatedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", borrowerId);
 
@@ -93,8 +94,8 @@ class BookServiceTest {
     @Test
     void borrowBook_AlreadyBorrowedThrowsException() {
         // Given
-        Long bookId = 1L, borrowerId = 100L;
-        Book alreadyBorrowedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", 999L);
+        UUID bookId = UUID.randomUUID(), borrowerId = UUID.randomUUID();
+        Book alreadyBorrowedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", UUID.randomUUID());
 
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(alreadyBorrowedBook));
 
@@ -108,8 +109,8 @@ class BookServiceTest {
     @Test
     void returnBook_Successful() {
         // Given
-        Long bookId = 1L;
-        Book borrowedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", 100L);
+        UUID bookId = UUID.randomUUID();
+        Book borrowedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", UUID.randomUUID());
         Book returnedBook = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", null);
 
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(borrowedBook));
@@ -129,7 +130,7 @@ class BookServiceTest {
     @Test
     void returnBook_NotBorrowedThrowsException() {
         // Given
-        Long bookId = 1L;
+        UUID bookId = UUID.randomUUID();
         Book bookNotBorrowed = new Book(bookId, "1234567890", "Clean Code", "Robert C. Martin", null);
 
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(bookNotBorrowed));
@@ -145,8 +146,8 @@ class BookServiceTest {
     void getAllBooks_ReturnsBooksList() {
         // Given
         List<Book> books = Arrays.asList(
-                new Book(1L, "1234567890", "Clean Code", "Robert C. Martin", null),
-                new Book(2L, "9876543210", "Clean Architecture", "Robert C. Martin", null)
+                new Book(UUID.randomUUID(), "1234567890", "Clean Code", "Robert C. Martin", null),
+                new Book(UUID.randomUUID(), "9876543210", "Clean Architecture", "Robert C. Martin", null)
         );
 
         when(bookRepository.findAll()).thenReturn(books);

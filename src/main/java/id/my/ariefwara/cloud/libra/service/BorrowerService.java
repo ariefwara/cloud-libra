@@ -22,6 +22,7 @@ public class BorrowerService {
 
     public BorrowerDTO registerBorrower(BorrowerDTO borrowerDTO) {
         logger.info("Attempting to register new borrower with email: {}", borrowerDTO.email());
+        logger.debug("Checking for existing borrower with email: {}", borrowerDTO.email());
 
         Optional<Borrower> existingBorrower = borrowerRepository.findByEmail(borrowerDTO.email());
         if (existingBorrower.isPresent()) {
@@ -30,10 +31,12 @@ public class BorrowerService {
             throw new DuplicateBorrowerException(borrowerDTO.email());
         }
 
+        logger.debug("No existing borrower found with email: {}. Creating new borrower entry.", borrowerDTO.email());
         Borrower borrower = new Borrower(null, borrowerDTO.name(), borrowerDTO.email());
         Borrower savedBorrower = borrowerRepository.save(borrower);
 
         logger.info("Successfully registered new borrower with ID: {} and email: {}", savedBorrower.getBorrowerId(), savedBorrower.getEmail());
+        logger.debug("Returning DTO for newly registered borrower with ID: {}", savedBorrower.getBorrowerId());
 
         return new BorrowerDTO(savedBorrower.getBorrowerId(), savedBorrower.getName(), savedBorrower.getEmail());
     }

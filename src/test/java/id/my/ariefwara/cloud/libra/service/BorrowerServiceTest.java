@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -33,7 +34,7 @@ class BorrowerServiceTest {
     void registerBorrower_SuccessfulRegistration() {
         // Given
         BorrowerDTO newBorrower = new BorrowerDTO(null, "John Doe", "john.doe@example.com");
-        Borrower savedEntity = new Borrower(1L, "John Doe", "john.doe@example.com");
+        Borrower savedEntity = new Borrower(UUID.randomUUID(), "John Doe", "john.doe@example.com");
 
         // Simulate repository behavior
         when(borrowerRepository.findByEmail(newBorrower.email())).thenReturn(Optional.empty());
@@ -44,7 +45,7 @@ class BorrowerServiceTest {
 
         // Then
         assertNotNull(result);
-        assertEquals(1L, result.borrowerId());
+        assertEquals(savedEntity.getBorrowerId(), result.borrowerId());
         assertEquals("John Doe", result.name());
         assertEquals("john.doe@example.com", result.email());
 
@@ -57,7 +58,7 @@ class BorrowerServiceTest {
     void registerBorrower_DuplicateEmailThrowsException() {
         // Given
         BorrowerDTO newBorrower = new BorrowerDTO(null, "John Doe", "john.doe@example.com");
-        Borrower existingBorrower = new Borrower(1L, "John Doe", "john.doe@example.com");
+        Borrower existingBorrower = new Borrower(UUID.randomUUID(), "John Doe", "john.doe@example.com");
 
         // Simulate repository behavior
         when(borrowerRepository.findByEmail(newBorrower.email())).thenReturn(Optional.of(existingBorrower));

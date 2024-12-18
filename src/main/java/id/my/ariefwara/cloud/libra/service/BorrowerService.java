@@ -26,15 +26,15 @@ public class BorrowerService {
         Optional<Borrower> existingBorrower = borrowerRepository.findByEmail(borrowerDTO.email());
         if (existingBorrower.isPresent()) {
             logger.warn("Borrower with email '{}' already exists. Existing ID: {}", 
-                        borrowerDTO.email(), existingBorrower.get().borrowerId());
+                        borrowerDTO.email(), existingBorrower.get().getBorrowerId());
             throw new DuplicateBorrowerException(borrowerDTO.email());
         }
 
         Borrower borrower = new Borrower(null, borrowerDTO.name(), borrowerDTO.email());
         Borrower savedBorrower = borrowerRepository.save(borrower);
 
-        logger.info("Successfully registered new borrower with ID: {} and email: {}", savedBorrower.borrowerId(), savedBorrower.email());
+        logger.info("Successfully registered new borrower with ID: {} and email: {}", savedBorrower.getBorrowerId(), savedBorrower.getEmail());
 
-        return new BorrowerDTO(savedBorrower.borrowerId(), savedBorrower.name(), savedBorrower.email());
+        return new BorrowerDTO(savedBorrower.getBorrowerId(), savedBorrower.getName(), savedBorrower.getEmail());
     }
 }

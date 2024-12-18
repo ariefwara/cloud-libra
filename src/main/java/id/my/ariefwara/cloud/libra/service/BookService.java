@@ -35,16 +35,16 @@ public class BookService {
                     return new BookNotFoundException(bookId);
                 });
 
-        if (book.borrowerId() != null) {
-            logger.warn("Book with ID: {} is already borrowed by borrower ID: {}", bookId, book.borrowerId());
+        if (book.getBorrowerId() != null) {
+            logger.warn("Book with ID: {} is already borrowed by borrower ID: {}", bookId, book.getBorrowerId());
             throw new BookAlreadyBorrowedException(bookId);
         }
 
-        Book updatedBook = new Book(book.bookId(), book.isbn(), book.title(), book.author(), borrowerId);
-        Book savedBook = bookRepository.save(updatedBook);
+        book.setBorrowerId(borrowerId);
+        Book savedBook = bookRepository.save(book);
 
-        logger.info("Book with ID: {} successfully borrowed by borrower ID: {}", savedBook.bookId(), borrowerId);
-        return new BookDTO(savedBook.bookId(), savedBook.isbn(), savedBook.title(), savedBook.author());
+        logger.info("Book with ID: {} successfully borrowed by borrower ID: {}", savedBook.getBookId(), borrowerId);
+        return new BookDTO(savedBook.getBookId(), savedBook.getIsbn(), savedBook.getTitle(), savedBook.getAuthor());
     }
 
     public BookDTO registerBook(BookDTO bookDTO) {
@@ -54,30 +54,30 @@ public class BookService {
 
         if (existingBook.isPresent()) {
             Book book = existingBook.get();
-            if (!book.title().equals(bookDTO.title()) || !book.author().equals(bookDTO.author())) {
+            if (!book.getTitle().equals(bookDTO.title()) || !book.getAuthor().equals(bookDTO.author())) {
                 logger.warn("Conflict detected for ISBN: {}. Existing title: {}, Existing author: {}. New title: {}, New author: {}",
-                        bookDTO.isbn(), book.title(), book.author(), bookDTO.title(), bookDTO.author());
+                        bookDTO.isbn(), book.getTitle(), book.getAuthor(), bookDTO.title(), bookDTO.author());
                 throw new BookConflictException(
                         bookDTO.isbn(),
-                        book.title(), book.author(),
+                        book.getTitle(), book.getAuthor(),
                         bookDTO.title(), bookDTO.author()
                 );
             }
             logger.info("Book with ISBN: {} already exists. Returning existing book details.", bookDTO.isbn());
-            return new BookDTO(book.bookId(), book.isbn(), book.title(), book.author());
+            return new BookDTO(book.getBookId(), book.getIsbn(), book.getTitle(), book.getAuthor());
         }
 
         Book newBook = new Book(null, bookDTO.isbn(), bookDTO.title(), bookDTO.author(), null);
         Book savedBook = bookRepository.save(newBook);
 
-        logger.info("Book with ISBN: {} successfully registered with ID: {}", savedBook.isbn(), savedBook.bookId());
-        return new BookDTO(savedBook.bookId(), savedBook.isbn(), savedBook.title(), savedBook.author());
+        logger.info("Book with ISBN: {} successfully registered with ID: {}", savedBook.getIsbn(), savedBook.getBookId());
+        return new BookDTO(savedBook.getBookId(), savedBook.getIsbn(), savedBook.getTitle(), savedBook.getAuthor());
     }
 
     public List<BookDTO> getAllBooks() {
         logger.info("Fetching all books from the library.");
         List<BookDTO> books = bookRepository.findAll().stream()
-                .map(book -> new BookDTO(book.bookId(), book.isbn(), book.title(), book.author()))
+                .map(book -> new BookDTO(book.getBookId(), book.getIsbn(), book.getTitle(), book.getAuthor()))
                 .collect(Collectors.toList());
         logger.info("Total books fetched: {}", books.size());
         return books;
@@ -92,15 +92,15 @@ public class BookService {
                     return new BookNotFoundException(bookId);
                 });
 
-        if (book.borrowerId() == null) {
+        if (book.getBorrowerId() == null) {
             logger.warn("Book with ID: {} is not currently borrowed.", bookId);
             throw new BookNotBorrowedException(bookId);
         }
 
-        Book updatedBook = new Book(book.bookId(), book.isbn(), book.title(), book.author(), null);
-        Book savedBook = bookRepository.save(updatedBook);
+        book.setBorrowerId(null);
+        Book savedBook = bookRepository.save(book);
 
-        logger.info("Book with ID: {} successfully returned.", savedBook.bookId());
-        return new BookDTO(savedBook.bookId(), savedBook.isbn(), savedBook.title(), savedBook.author());
+        logger.info("Book with ID: {} successfully returned.", savedBook.getBookId());
+        return new BookDTO(savedBook.getBookId(), savedBook.getIsbn(), savedBook.getTitle(), savedBook.getAuthor());
     }
 }

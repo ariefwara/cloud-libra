@@ -84,7 +84,7 @@ class BookServiceTest {
 
         // Then
         assertNotNull(result);
-        assertEquals(borrowerId, updatedBook.borrowerId());
+        assertEquals(borrowerId, updatedBook.getBorrowerId());
 
         verify(bookRepository, times(1)).findById(bookId);
         verify(bookRepository, times(1)).save(any(Book.class));
@@ -120,7 +120,7 @@ class BookServiceTest {
 
         // Then
         assertNotNull(result);
-        assertNull(returnedBook.borrowerId());
+        assertNull(returnedBook.getBorrowerId());
 
         verify(bookRepository, times(1)).findById(bookId);
         verify(bookRepository, times(1)).save(any(Book.class));
